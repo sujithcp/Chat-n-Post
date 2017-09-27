@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 	callback(null, date.toISOString()+req.session.user_email + file.originalname.match(/\..*$/))
 	}
   })
-  var upload = multer({storage:storage})
+  var upload = multer({storage:storage, limits: {fileSize: 1000 * 1000}})
 router.get('/',function(req, res){
 	if(req.session?req.session.user_email:false){
 		res.redirect('/home')
@@ -155,7 +155,9 @@ router.get('/',function(req, res){
 	}
 	upload.single('photo')(req, res,(err)=>{
 		if(err){
-			console.log("BLABLABLA " + err)
+			console.log(err)
+			res.end(err.toString())
+			return;
 		}
 		var newPost = new PhotPost({
 			'name':req.file.filename,
