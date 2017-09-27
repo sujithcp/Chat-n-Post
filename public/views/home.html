@@ -1,0 +1,64 @@
+ <!-- Fixed navbar -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link rel="stylesheet" href="../css/material_card.css" />
+<link rel="stylesheet" href="../css/home.css" />
+<link rel="stylesheet" href="../css/chat.css" />
+<nav class="navbar navbar-default navbar-fixed-top">
+	<div class="container">
+	  <div class="navbar-header">
+		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+		  <span class="sr-only">Toggle navigation</span>
+		  <span class="icon-bar"></span>
+		  <span class="icon-bar"></span>
+		  <span class="icon-bar"></span>
+		</button>
+		<a class="navbar-brand" href="#">Final-Project</a>
+	  </div>
+	  <div id="navbar" class="navbar-collapse collapse">
+		<ul class="nav navbar-nav">
+		  <li class="active"><a href="#">Home</a></li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">	
+		  <li class="active"><a href="/logout">Logout <span class="sr-only">(current)</span></a></li>
+		</ul>
+	  </div><!--/.nav-collapse -->
+	</div>
+  </nav>
+  <div class="container" id="main_container">
+		<div class = "photo_post input-group">
+			<form class="form-element" action="/post_photo" method="post" enctype="multipart/form-data">
+					<input type="file" name="photo" accept="image/*" required />
+					<button type="submit">Post</button>
+			</form>
+		</div>
+	<div class="material_card" id="container2">
+		<div class="material_card" id="posts">
+		</div>
+		<div class="material_card" id="chat_region">
+				<div class="material_card" id="chat_header">
+					<img src="/assets/toggle-left.png" alt="" id="toggle_icon">
+				</div>
+				<div class="material_card" id="chat_div">
+					<div id='chat_area' hidden='true'>
+						<div>
+								<form onsubmit="return false;">
+										<div id="status">************</div>
+										<input type="text" id="msg" maxlength="300" autocomplete="off" placeholder="message">
+										<button type="submit" id="send_button">send</button>
+									</form>
+						</div>
+						<div id="chat">
+						</div>
+					</div>
+					<div id='chat_user_list'></div>
+				</div>
+		</div>
+	</div>
+	</div>
+	<script src="http://10.7.20.40:4002/socket.io/socket.io.js"></script>
+	<script src="/js/chat_client.js"></script>
+	<script src="/js/photo_fetch.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>

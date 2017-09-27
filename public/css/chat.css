@@ -1,0 +1,89 @@
+.self > p{
+	width: 100%;
+	margin: 0px;
+	word-break: break-all;
+	text-justify: distribute;
+
+}
+.chatmate > p{
+	width: 100%;
+	margin: 0px;
+	word-break: break-all;
+	text-justify: distribute;
+	
+}
+.self{
+	color: orange;
+	font-style: bold italic;
+	background: #ffffff;
+	font-family: ubuntu;
+	font-size: 1em;
+	padding: 3px;
+	margin: 4px;
+	margin-left: 50px;
+	clear: both;
+	float: left;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ffffff;
+	border-radius:8px;
+	max-width: 500px; 
+}
+.chatmate{
+	color: green;
+	font-style: bold;
+	background: #ffffdd;
+	font-family: ubuntu;
+	font-size: 1em;
+	margin: 4px;
+	padding: 3px;
+	clear: both;
+	float: left;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ffffff;
+	border-radius:8px; 
+	max-width: 500px; 
+}
+
+#chat{
+	height: 100%;
+	width: 100%;
+	background: #555555;
+	border-width: 2px;
+	border-color: #A0A0FF;
+	overflow-y: scroll
+}
+#chat_area{
+	height: 100%;
+	background: #7A7A75
+}
+#chat_user_list{
+	height: 100%;
+	background: #E2E2C5;
+	padding: 4px;
+}
+.user{
+	height: 40px;
+	background: #9C95FF;
+	border-bottom-style: solid;
+	border-bottom-color: #ffffff;
+	border-bottom-width: 2px;
+	vertical-align: middle;
+	line-height: 40px;
+	font-family: ubuntu;
+	font-weight: solid;
+	font-variant-caps: all-petite-caps;
+	font-size: 2em;
+	color: #ffffff;
+	overflow: hidden;
+}
+#chat_region{
+	padding-top: 20px;
+}
+#status{
+	font-size: 1em;
+	font-style: italic;
+	color: blue;
+	margin: 10px;
+}

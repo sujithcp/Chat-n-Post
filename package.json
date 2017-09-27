@@ -1,0 +1,24 @@
+{
+  "name": "chat-n-post",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sujith C P",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.15.5",
+    "express-formidable": "^1.0.0",
+    "express-session": "^1.15.5",
+    "express-socket.io-session": "^1.3.2",
+    "mongodb": "^2.2.31",
+    "mongoose": "^4.11.13",
+    "multer": "^1.3.0",
+    "pug": "^2.0.0-rc.4",
+    "socket.io": "^2.0.3",
+    "validator": "^8.2.0"
+  }
+}
