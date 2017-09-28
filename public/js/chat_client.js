@@ -19,16 +19,22 @@ var groupChatDiv = document.getElementById('group_chat')
 var groupChatButton = document.getElementById("group_chat_button")
 var groupButton = document.getElementById('send_button_group')
 var groupChatMsg = document.getElementById('msg_group')
+
+
 toggleIcon.onclick = function(e) {
     if (chatArea.hidden) {
         chatArea.hidden = false
         chatUserList.hidden = true
-        toggleIcon.setAttribute('src', "/assets/toggle-right.png")
+		toggleIcon.setAttribute('src', "/assets/toggle-right.png")
+		groupChatButton.hidden = true
+		singleChatDiv.hidden = false;
+		groupChatDiv.hidden = true;
         fetchUserList()
     } else {
         chatArea.hidden = true
         chatUserList.hidden = false
-        toggleIcon.setAttribute('src', "/assets/toggle-left.png")
+		toggleIcon.setAttribute('src', "/assets/toggle-left.png")
+		groupChatButton.hidden = false
     }
 }
 
@@ -73,7 +79,7 @@ function createGroupMessageNode(object, className) {
     var headP = document.createElement('p')
     if (object.sender != '') {
         headP.className = 'sender'
-        headP.appendChild(document.createTextNode("Member: " + object.sender))
+        headP.appendChild(document.createTextNode("" + object.sender))
         item.appendChild(headP)
     }
 
@@ -103,7 +109,7 @@ groupButton.onclick = function(e) {
 groupChatButton.onclick = function(e) {
     toggleIcon.click();
     singleChatDiv.hidden = true;
-    groupChatDiv.hidden = false;
+	groupChatDiv.hidden = false;
 }
 var xhr = new XMLHttpRequest();
 
@@ -168,7 +174,7 @@ socket.on('user_list_update', function() {
     fetchUserList()
 })
 socket.on('rejected_from_server', function() {
-    document.getElementById('status').innerHTML = "Connection rejected";
+    document.getElementById('status').innerHTML = "Last Connection rejected";
 })
 
 socket.on('group_message_from_server', function(obj) {

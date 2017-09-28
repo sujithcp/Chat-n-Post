@@ -33,4 +33,4 @@ var ajaxPhotoRequest = function(){
 	};
 }
 ajaxPhotoRequest()
-setInterval(ajaxPhotoRequest, 5000)
+setInterval(ajaxPhotoRequest, 10000)
