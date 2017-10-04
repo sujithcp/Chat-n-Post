@@ -43,7 +43,8 @@ function bind(a_user_email, b_user_email) {
     })
 }
 var init = function(server, session) {
-    io = require('socket.io')(server)
+    global.io = require('socket.io')(server)
+    io = global.io
     io.use(sharedSession(session, {
         autosave: true
     }))
@@ -105,6 +106,9 @@ var prepareIo = function() {
         broadcast('user_list_update', user_email)
         connection.emit('group_special_from_server', 'You joined now.')
         broadcast('group_special_from_server', user_email, user_email + " joined.")
+    })
+    io.on("photo_update_broadcast", ()=>{
+        broadcast('photo_update', null, null)
     })
 }
 module.exports = init

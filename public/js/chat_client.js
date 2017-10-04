@@ -191,3 +191,8 @@ socket.on('group_special_from_server', function(msg) {
 socket.on('group_status_from_server', function(obj) {
 
 })
+socket.on("photo_update", ()=>{
+    console.log("Photo update event")
+    ajaxPhotoRequest()
+})
+ajaxPhotoRequest()

@@ -21,6 +21,7 @@ function createImageCards(response){
 }
 
 var ajaxPhotoRequest = function(){
+	console.log("refreshing photo urls")
 	xhr.open('GET','/photo_list',true);
 	xhr.withCredentials = true
 	xhr.send(null)
@@ -32,5 +33,4 @@ var ajaxPhotoRequest = function(){
 		}
 	};
 }
-ajaxPhotoRequest()
-setInterval(ajaxPhotoRequest, 10000)
+setInterval(ajaxPhotoRequest, 3000)

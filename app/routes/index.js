@@ -190,6 +190,7 @@ router.get('/', function(req, res) {
                         return;
                     }
                     photoList = result
+                    global.io.emit('photo_update')
                 })
             })
 
