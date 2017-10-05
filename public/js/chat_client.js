@@ -19,8 +19,6 @@ var groupChatDiv = document.getElementById('group_chat')
 var groupChatButton = document.getElementById("group_chat_button")
 var groupButton = document.getElementById('send_button_group')
 var groupChatMsg = document.getElementById('msg_group')
-
-
 toggleIcon.onclick = function(e) {
     if (chatArea.hidden) {
         chatArea.hidden = false
@@ -135,7 +133,7 @@ setInterval(()=>{
 }, 6000)
 */
 socket.on('connection_request_from_server', function(user) {
-    if (confirm('Connect to ' + user)) {
+    if (confirm('Connect to ' + user + "?")) {
         current_chat.partner = user;
         connected = true
         socket.emit('ready', user)
@@ -169,6 +167,7 @@ socket.on('identity_from_server', function(email) {
     me = email;
     console.log(me)
     fetchUserList()
+    document.getElementById('username').appendChild(document.createTextNode(me))
 })
 socket.on('user_list_update', function() {
     fetchUserList()
