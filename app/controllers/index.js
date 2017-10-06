@@ -103,6 +103,9 @@ this.getUserList = (req, res) => {
 this.getFavicon = (req, res) => {
 	res.sendFile(Path.normalize(__dirname + "/../../favicon.png"))
 }
+this.getDp = (req, res) => {
+	res.sendFile(Path.normalize(__dirname + "/../../favicon.png"))
+}
 this.postRegister = function(req, res) {
 	var user = req.body
 	if (!validator.isEmail(user.user_email)) {
@@ -194,6 +197,13 @@ this.postPhoto = function(req, res) {
 
 		res.redirect('/home');
 	});
+}
+this.postLike = function(req, res) {
+	if (req.session ? req.session.user_email : false) {
+		res.redirect('/home')
+		return;
+	}
+	console.log(req.session.user_email + " liked " + request.params.photo)
 }
 
 module.exports = this

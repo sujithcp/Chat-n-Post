@@ -110,6 +110,22 @@ groupChatButton.onclick = function(e) {
 	groupChatDiv.hidden = false;
 }
 var xhr = new XMLHttpRequest();
+function sendXhr(method, url, data){
+    xhr.open('GET', '/get_user_list', true);
+    xhr.withCredentials = true
+    xhr.send(null)
+    xhr.onreadystatechange = function(e) {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                return xhr.response
+            }
+            return null
+        }
+
+    };
+}
+
+
 
 function fetchUserList() {
     xhr.open('GET', '/get_user_list', true);

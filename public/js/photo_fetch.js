@@ -8,6 +8,9 @@ function createImageCard(image_data){
 	img.setAttribute('alt', "Image missing/loading")
 	img.setAttribute('class', 'photo')
 	img.setAttribute('src',"/photo?path=" + image_data.name)
+	img.onclick = function(){
+		sendXhr('POST', '/like/:' + image_data.name, null)
+	}
 	div.appendChild(img)
 	photoContainer.insertBefore(div, photoContainer.firstChild)
 	

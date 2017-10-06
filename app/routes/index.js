@@ -10,6 +10,7 @@ router.get('/', controllers.getRoot)
     .get('/photo', controllers.getPhoto)
     .get('/get_user_list', controllers.getUserList)
     .get('/favicon.ico', controllers.getFavicon)
+    .get('/dp', controllers.getDp)
     .post('/register', controllers.upload.none(), controllers.postRegister)
     .post('/login', controllers.upload.none(), controllers.postLogin)
     .post('/post_photo', controllers.postPhoto);
