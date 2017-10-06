@@ -111,12 +111,15 @@ groupChatButton.onclick = function(e) {
 }
 var xhr = new XMLHttpRequest();
 function sendXhr(method, url, data){
-    xhr.open('GET', '/get_user_list', true);
+    console.log(method + " " + url)
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
     xhr.withCredentials = true
-    xhr.send(null)
+    xhr.send(data)
     xhr.onreadystatechange = function(e) {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
+                console.log(xhr.response)
                 return xhr.response
             }
             return null

@@ -13,6 +13,7 @@ router.get('/', controllers.getRoot)
     .get('/dp', controllers.getDp)
     .post('/register', controllers.upload.none(), controllers.postRegister)
     .post('/login', controllers.upload.none(), controllers.postLogin)
-    .post('/post_photo', controllers.postPhoto);
+    .post('/post_photo', controllers.postPhoto)
+    .post('/like/:photo', controllers.postLike)
 
 module.exports = router;

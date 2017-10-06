@@ -1,5 +1,6 @@
 var Users = require('../models/user')
 var PhotPost = require('../models/photo_post')
+var PublicProfile = require('../models/public_profile')
 var validator = require('validator')
 var multer = require('multer')
 var Path = require('path')
@@ -128,6 +129,13 @@ this.postRegister = function(req, res) {
 			res.end('This email already has an account!!')
 		} else {
 			newUser.save()
+			new PublicProfile({
+				'email':user.user_email,
+				'badge':'A',
+				'score':0,
+				'liked_photos':[]
+
+			})
 			res.redirect('/login')
 		}
 	});
@@ -199,11 +207,47 @@ this.postPhoto = function(req, res) {
 	});
 }
 this.postLike = function(req, res) {
-	if (req.session ? req.session.user_email : false) {
-		res.redirect('/home')
+	if (!(req.session ? req.session.user_email : false)) {
+		res.redirect('/');
 		return;
 	}
-	console.log(req.session.user_email + " liked " + request.params.photo)
+	console.log(req.session.user_email + " liked " + req.params.photo)
+	PublicProfile.findOne({email:req.session.user_email}, function(err, result){
+		if(err){
+			console.log(err.toString());
+			return
+		}
+		if(result){
+			var photoSet = new Set(result.liked_photos)
+			if(photoSet.has(req.params.photo)){
+				res.json({status : "Already liked"})
+				return
+			}
+			photoSet.add(req.params.photo)
+			result.liked_photos = [...photoSet]
+			result.save()
+		}
+		else{
+			new PublicProfile({
+				'email':req.session.user_email,
+				'badge':'A',
+				'score':0,
+				'liked_photos':[req.params.photo]
+
+			}).save()
+		}
+		PhotPost.findOne({name:req.params.photo}, (err, photo)=>{
+			if(photo){
+				PublicProfile.findOne({email:photo.user_email}, (err, user)=>{
+					if(user){
+						user.score+=1
+						user.save()
+					}
+				})
+			}
+		})
+		res.json({status : "success"})
+	})
 }
 
 module.exports = this
