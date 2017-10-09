@@ -15,6 +15,12 @@ var storage = multer.diskStorage({
         callback(null, date.toISOString() + req.session.user_email + file.originalname.match(/\..*$/))
     }
 })
+var getNextBadge = function(badge) {
+	badge = badge.toUpperCase()
+	if(badge=='Z')
+		return 'Z'
+	return (String.fromCharCode(badge.charCodeAt(0)+1))
+}
 var upload = this.upload = multer({
     storage: storage,
     limits: {
@@ -107,6 +113,38 @@ this.getFavicon = (req, res) => {
 this.getDp = (req, res) => {
 	res.sendFile(Path.normalize(__dirname + "/../../favicon.png"))
 }
+this.getProfile = (req, res) => {
+	if (!(req.session ? req.session.user_email : false)) {
+		res.redirect('/');
+		return;
+	}
+	console.log(req.params.what)
+	if(req.params.what=="data"){
+		var data = {}
+		PublicProfile.findOne({email:req.session.user_email}, (err, profile)=>{
+			if(profile){
+				PhotPost.findOne({user_email:profile.email}, (err, result)=>{
+					if(result)
+						data.dp = "/photo?path=" + result.name
+					else	
+						data.dp = 'favicon.ico'
+					data.email = profile.email
+					data.name = /^.+\@/.exec(profile.email)[0]
+					data.score = profile.score
+					data.badge = profile.badge
+					data.bio = "Bla Bla Bla"
+					res.end(JSON.stringify(data))
+					return
+				})
+			}
+			else
+				res.end(null)
+		})
+	}
+	else{
+		res.render('profile')
+	}	
+}
 this.postRegister = function(req, res) {
 	var user = req.body
 	if (!validator.isEmail(user.user_email)) {
@@ -134,8 +172,7 @@ this.postRegister = function(req, res) {
 				'badge':'A',
 				'score':0,
 				'liked_photos':[]
-
-			})
+			}).save()
 			res.redirect('/login')
 		}
 	});
@@ -211,7 +248,6 @@ this.postLike = function(req, res) {
 		res.redirect('/');
 		return;
 	}
-	console.log(req.session.user_email + " liked " + req.params.photo)
 	PublicProfile.findOne({email:req.session.user_email}, function(err, result){
 		if(err){
 			console.log(err.toString());
@@ -233,7 +269,6 @@ this.postLike = function(req, res) {
 				'badge':'A',
 				'score':0,
 				'liked_photos':[req.params.photo]
-
 			}).save()
 		}
 		PhotPost.findOne({name:req.params.photo}, (err, photo)=>{
@@ -241,6 +276,8 @@ this.postLike = function(req, res) {
 				PublicProfile.findOne({email:photo.user_email}, (err, user)=>{
 					if(user){
 						user.score+=1
+						if(user.score%5==0)
+							user.badge = getNextBadge(user.badge)
 						user.save()
 					}
 				})
@@ -249,5 +286,4 @@ this.postLike = function(req, res) {
 		res.json({status : "success"})
 	})
 }
-
 module.exports = this

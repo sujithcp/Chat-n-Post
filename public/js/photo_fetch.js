@@ -9,7 +9,9 @@ function createImageCard(image_data){
 	img.setAttribute('class', 'photo')
 	img.setAttribute('src',"/photo?path=" + image_data.name)
 	img.onclick = function(){
-		sendXhr('POST', '/like/' + image_data.name, null)
+		sendXhr('POST', '/like/' + image_data.name, null, (response)=>{
+			console.log(response)
+		})
 	}
 	div.appendChild(img)
 	photoContainer.insertBefore(div, photoContainer.firstChild)
@@ -25,15 +27,11 @@ function createImageCards(response){
 
 var ajaxPhotoRequest = function(){
 	console.log("refreshing photo urls")
-	xhr.open('GET','/photo_list',true);
-	xhr.withCredentials = true
-	xhr.send(null)
-	xhr.onreadystatechange = function (e){
-		if(xhr.readyState==4){
-			if(xhr.status==200){
-				createImageCards(xhr.response)
-			}
+	sendXhr('GET','/photo_list',null,(response)=>{
+		if(response){
+			createImageCards(response)
 		}
-	};
+	})
+	
 }
-setInterval(ajaxPhotoRequest, 3000)
+setInterval(ajaxPhotoRequest, 5000)
