@@ -1,5 +1,6 @@
 const http = require('http')
 const express = require('express')
+var passport = require('passport')
 var app = express()
 var server = http.Server(app)
 var session = require('express-session')
@@ -14,6 +15,8 @@ var currentSession = session({
 	saveUninitialized: true,
   })
 app.use(currentSession)
+app.use(passport.initialize())
+app.use(passport.session())
 app.use('/', routes)
 app.use((req, res)=>{
 	res.statusCode = 404

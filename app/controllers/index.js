@@ -5,6 +5,7 @@ var validator = require('validator')
 var multer = require('multer')
 var Path = require('path')
 var UserList = require('../socket/user_list')
+this.passport = require('../auth/')()
 var photoList = null
 var storage = multer.diskStorage({
     destination: function(req, file, callback) {
@@ -145,6 +146,7 @@ this.getProfile = (req, res) => {
 		res.render('profile')
 	}	
 }
+this.getGoogleAuth = 
 this.postRegister = function(req, res) {
 	var user = req.body
 	if (!validator.isEmail(user.user_email)) {
