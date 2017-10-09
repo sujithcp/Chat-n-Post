@@ -5,7 +5,8 @@ var photoPostSchema = mongoose.Schema({
 	name:String,
 	user_email:String,
 	time:String,
-	location:String
+	location:String,
+	click_count:Number,
 })
 var photoPostModel = mongoose.model('photo_post', photoPostSchema)
 

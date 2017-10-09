@@ -1,5 +1,6 @@
 var Users = require('../models/user')
 var PhotPost = require('../models/photo_post')
+var PublicProfile = require('../models/public_profile')
 var validator = require('validator')
 var multer = require('multer')
 var Path = require('path')
@@ -14,6 +15,12 @@ var storage = multer.diskStorage({
         callback(null, date.toISOString() + req.session.user_email + file.originalname.match(/\..*$/))
     }
 })
+var getNextBadge = function(badge) {
+	badge = badge.toUpperCase()
+	if(badge=='Z')
+		return 'Z'
+	return (String.fromCharCode(badge.charCodeAt(0)+1))
+}
 var upload = this.upload = multer({
     storage: storage,
     limits: {
@@ -103,6 +110,41 @@ this.getUserList = (req, res) => {
 this.getFavicon = (req, res) => {
 	res.sendFile(Path.normalize(__dirname + "/../../favicon.png"))
 }
+this.getDp = (req, res) => {
+	res.sendFile(Path.normalize(__dirname + "/../../favicon.png"))
+}
+this.getProfile = (req, res) => {
+	if (!(req.session ? req.session.user_email : false)) {
+		res.redirect('/');
+		return;
+	}
+	console.log(req.params.what)
+	if(req.params.what=="data"){
+		var data = {}
+		PublicProfile.findOne({email:req.session.user_email}, (err, profile)=>{
+			if(profile){
+				PhotPost.findOne({user_email:profile.email}, (err, result)=>{
+					if(result)
+						data.dp = "/photo?path=" + result.name
+					else	
+						data.dp = 'favicon.ico'
+					data.email = profile.email
+					data.name = /^.+\@/.exec(profile.email)[0]
+					data.score = profile.score
+					data.badge = profile.badge
+					data.bio = "Bla Bla Bla"
+					res.end(JSON.stringify(data))
+					return
+				})
+			}
+			else
+				res.end(null)
+		})
+	}
+	else{
+		res.render('profile')
+	}	
+}
 this.postRegister = function(req, res) {
 	var user = req.body
 	if (!validator.isEmail(user.user_email)) {
@@ -125,6 +167,12 @@ this.postRegister = function(req, res) {
 			res.end('This email already has an account!!')
 		} else {
 			newUser.save()
+			new PublicProfile({
+				'email':user.user_email,
+				'badge':'A',
+				'score':0,
+				'liked_photos':[]
+			}).save()
 			res.redirect('/login')
 		}
 	});
@@ -195,5 +243,47 @@ this.postPhoto = function(req, res) {
 		res.redirect('/home');
 	});
 }
-
+this.postLike = function(req, res) {
+	if (!(req.session ? req.session.user_email : false)) {
+		res.redirect('/');
+		return;
+	}
+	PublicProfile.findOne({email:req.session.user_email}, function(err, result){
+		if(err){
+			console.log(err.toString());
+			return
+		}
+		if(result){
+			var photoSet = new Set(result.liked_photos)
+			if(photoSet.has(req.params.photo)){
+				res.json({status : "Already liked"})
+				return
+			}
+			photoSet.add(req.params.photo)
+			result.liked_photos = [...photoSet]
+			result.save()
+		}
+		else{
+			new PublicProfile({
+				'email':req.session.user_email,
+				'badge':'A',
+				'score':0,
+				'liked_photos':[req.params.photo]
+			}).save()
+		}
+		PhotPost.findOne({name:req.params.photo}, (err, photo)=>{
+			if(photo){
+				PublicProfile.findOne({email:photo.user_email}, (err, user)=>{
+					if(user){
+						user.score+=1
+						if(user.score%5==0)
+							user.badge = getNextBadge(user.badge)
+						user.save()
+					}
+				})
+			}
+		})
+		res.json({status : "success"})
+	})
+}
 module.exports = this

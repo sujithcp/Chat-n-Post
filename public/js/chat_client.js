@@ -109,23 +109,15 @@ groupChatButton.onclick = function(e) {
     singleChatDiv.hidden = true;
 	groupChatDiv.hidden = false;
 }
-var xhr = new XMLHttpRequest();
-
 function fetchUserList() {
-    xhr.open('GET', '/get_user_list', true);
-    xhr.withCredentials = true
-    xhr.send(null)
-    xhr.onreadystatechange = function(e) {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
-                console.log(xhr.response)
-                createUserItems(xhr.response)
-                console.log('USER_LIST_UPDATE')
-            } else {
-                console.log("USER_LIST_UPDATE : ERROR")
-            }
+
+    sendXhr('GET', '/get_user_list', null, (response)=>{
+        if(response){
+            console.log(response)
+            createUserItems(response)
+            console.log('USER_LIST_UPDATE')
         }
-    };
+    })   
 }
 /*
 setInterval(()=>{
