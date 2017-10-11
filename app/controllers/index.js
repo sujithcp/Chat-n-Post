@@ -5,6 +5,7 @@ var validator = require('validator')
 var multer = require('multer')
 var Path = require('path')
 var UserList = require('../socket/user_list')
+this.passport = require('../auth/')()
 var photoList = null
 var storage = multer.diskStorage({
     destination: function(req, file, callback) {
@@ -129,7 +130,7 @@ this.getProfile = (req, res) => {
 					else	
 						data.dp = 'favicon.ico'
 					data.email = profile.email
-					data.name = /^.+\@/.exec(profile.email)[0]
+					data.name = profile.name
 					data.score = profile.score
 					data.badge = profile.badge
 					data.bio = "Bla Bla Bla"
@@ -137,9 +138,21 @@ this.getProfile = (req, res) => {
 					return
 				})
 			}
-			else
-				res.end(null)
+			else {
+				new PublicProfile({
+					'name':/^.+\@/.exec(req.session.user_email)[0],
+					'email':req.session.user_email,
+					'badge':'A',
+					'score':0,
+					'liked_photos':[]
+				}).save()
+				res.end("")
+			}
+				
 		})
+	}
+	else if(req.params.what=="edit"){
+		res.render('profile_edit')
 	}
 	else{
 		res.render('profile')
@@ -168,6 +181,7 @@ this.postRegister = function(req, res) {
 		} else {
 			newUser.save()
 			new PublicProfile({
+				'name':user.user_name,
 				'email':user.user_email,
 				'badge':'A',
 				'score':0,
@@ -265,6 +279,7 @@ this.postLike = function(req, res) {
 		}
 		else{
 			new PublicProfile({
+				'name':/^.+\@/.exec(req.session.user_email.email)[0],
 				'email':req.session.user_email,
 				'badge':'A',
 				'score':0,
@@ -284,6 +299,28 @@ this.postLike = function(req, res) {
 			}
 		})
 		res.json({status : "success"})
+	})
+}
+this.postProfile = (req, res)=> {
+	if (!(req.session ? req.session.user_email : false)) {
+		res.redirect('/');
+		return;
+	}
+	PublicProfile.findOne({email:req.session.user_email}, (err, result)=>{
+		if(result){
+			result.name = req.body.name
+			result.save()
+		}
+		else{
+			new PublicProfile({
+				'name':req.body.name,
+				'email':req.session.user_email,
+				'badge':'A',
+				'score':0,
+				'liked_photos':[]
+			}).save()
+		}
+		res.redirect('/profile')
 	})
 }
 module.exports = this

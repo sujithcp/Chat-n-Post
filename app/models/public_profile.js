@@ -2,6 +2,7 @@ var dbConnection = require('../db/')
 var mongoose = dbConnection.mongoose
 var db = dbConnection.db
 var userSchema = mongoose.Schema({
+	name:String,
 	email:String,
 	badge:String,
 	score:Number,

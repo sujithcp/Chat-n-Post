@@ -4,6 +4,7 @@ body{
   }
   .container{
 	width: 25%;
+	max-width: 400px;
 	margin: 0 37.5%;
 	margin-top: 50px;
 	min-height: 235px;

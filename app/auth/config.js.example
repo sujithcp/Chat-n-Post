@@ -1,0 +1,6 @@
+this.GOOGLE_CLIENT_ID = "dummy"
+this.GOOGLE_CLIENT_SECRET = "dummy"
+this.SESSION_SECRET = "dummy"
+this.HOST = "hostname"
+this.PORT = 4002
+module.exports = this

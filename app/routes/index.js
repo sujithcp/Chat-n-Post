@@ -13,9 +13,17 @@ router.get('/', controllers.getRoot)
     .get('/dp', controllers.getDp)
     .get('/profile', controllers.getProfile)
     .get('/profile/:what', controllers.getProfile)
+    .get('/auth/google', controllers.passport.authenticate('google', {scope:['https://www.googleapis.com/auth/plus.login', 'profile', 'email']}))
+    .get('/auth/google/callback', controllers.passport.authenticate('google', {failureRedirect:'/', scope:['https://www.googleapis.com/auth/plus.login', 'profile', 'email']}), (req, res)=>{
+        console.log('****************************Authenticated')
+        var user = req.session.passport.user
+        req.session.user_email = user.email
+        res.redirect('/home')
+    })
     .post('/register', controllers.upload.none(), controllers.postRegister)
     .post('/login', controllers.upload.none(), controllers.postLogin)
     .post('/post_photo', controllers.postPhoto)
     .post('/like/:photo', controllers.postLike)
+    .post('/profile',controllers.upload.none(), controllers.postProfile)
 
 module.exports = router;
