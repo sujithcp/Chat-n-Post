@@ -5,6 +5,7 @@ var validator = require('validator')
 var multer = require('multer')
 var Path = require('path')
 var UserList = require('../socket/user_list')
+var Chats = require('../models/chats')
 this.passport = require('../auth/')()
 var photoList = null
 var storage = multer.diskStorage({
@@ -322,5 +323,25 @@ this.postProfile = (req, res)=> {
 		}
 		res.redirect('/profile')
 	})
+}
+this.getChatHistory = (req, res)=>{
+	console.log(req.body)
+	Chats.findOne({participants:{$all:[req.body.me, req.body.mate]}}, (err, result)=>{
+		if(err){
+			console.log(err.toString())
+			return
+		}
+		if(!result){
+			new Chats({
+				participants : [req.body.me, req.body.mate],
+				messages:[]
+			}).save()
+			res.json([])
+		}
+		else{
+			res.json(result.messages)
+		}
+	})
+
 }
 module.exports = this

@@ -44,7 +44,7 @@ function createMessageNode(msg, className) {
     p.appendChild(document.createTextNode(msg))
     return item;
 }
-
+/*
 function sendRequest(e) {
     if (chatArea.hidden) {
         toggleIcon.click()
@@ -56,7 +56,34 @@ function sendRequest(e) {
     singleChatDiv.hidden = false;
     groupChatDiv.hidden = true;
 }
+*/
 
+function getChatMessages(e){
+    var div = e.target
+    var mate = div.innerHTML
+    sendXhr('POST', '/chat_messages', JSON.stringify({'me':me, 'mate':mate}), (messages)=>{
+        messages = JSON.parse(messages)
+        //console.log(messages)
+        document.getElementById('chat').innerHTML = "";
+        connected = true
+        current_chat.partner = mate;
+        document.getElementById('status').innerHTML = mate;
+        if (chatArea.hidden) {
+            toggleIcon.click()
+        }
+        singleChatDiv.hidden = false;
+        groupChatDiv.hidden = true;
+        for(var i in messages){
+            msg = messages[i]
+            if(msg.author==me){
+                container.insertBefore(createMessageNode(msg.message, 'self'), container.firstChild)
+            }
+            else{
+                container.insertBefore(createMessageNode(msg.message, 'chatmate'), container.firstChild)
+            }
+        }
+    })
+}
 function createUserItems(list) {
     document.getElementById('chat_user_list').innerHTML = ""
     var list = JSON.parse(list)
@@ -67,7 +94,7 @@ function createUserItems(list) {
         div.setAttribute('class', 'user')
         var name = document.createTextNode('' + list[i])
         div.appendChild(name)
-        div.onclick = sendRequest
+        div.onclick = getChatMessages
         chatUserList.appendChild(div)
     }
 }
@@ -91,7 +118,7 @@ button.onclick = function(e) {
     console.log(connected)
     if (!connected || chat_msg.value.trim() == "")
         return
-    socket.emit('chat_message', chat_msg.value)
+    socket.emit('chat_message', {to: current_chat.partner, message:chat_msg.value})
     chat_msg.value = ""
 }
 groupButton.onclick = function(e) {
@@ -124,6 +151,7 @@ setInterval(()=>{
 	fetchUserList()
 }, 6000)
 */
+/*
 socket.on('connection_request_from_server', function(user) {
     if (confirm('Connect to ' + user + "?")) {
         current_chat.partner = user;
@@ -133,6 +161,7 @@ socket.on('connection_request_from_server', function(user) {
         socket.emit('rejected', user)
     }
 })
+
 socket.on('ready_from_server', function(user) {
     document.getElementById('chat').innerHTML = "";
     connected = true
@@ -144,9 +173,14 @@ socket.on('ready_from_server', function(user) {
     singleChatDiv.hidden = false;
     groupChatDiv.hidden = true;
 })
-socket.on('chat_message_from_server', function(msg) {
-    console.log(msg)
-    container.insertBefore(createMessageNode(msg, 'chatmate'), container.firstChild)
+*/
+socket.on('chat_message_from_server', function(data) {
+    console.log(data)
+    if(current_chat.partner==data.from)
+        container.insertBefore(createMessageNode(data.message, 'chatmate'), container.firstChild)
+    else{
+
+    }
 })
 
 socket.on('status_from_server', function(msg) {
@@ -164,9 +198,11 @@ socket.on('identity_from_server', function(email) {
 socket.on('user_list_update', function() {
     fetchUserList()
 })
+/*
 socket.on('rejected_from_server', function() {
     document.getElementById('status').innerHTML = "Last Connection rejected";
 })
+*/
 
 socket.on('group_message_from_server', function(obj) {
     groupContainer.insertBefore(createGroupMessageNode(obj, 'chatmate'), groupContainer.firstChild)

@@ -25,5 +25,6 @@ router.get('/', controllers.getRoot)
     .post('/post_photo', controllers.postPhoto)
     .post('/like/:photo', controllers.postLike)
     .post('/profile',controllers.upload.none(), controllers.postProfile)
+    .post('/chat_messages', controllers.getChatHistory)
 
 module.exports = router;

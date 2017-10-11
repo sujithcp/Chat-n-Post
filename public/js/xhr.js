@@ -3,6 +3,7 @@ function sendXhr(method, url, data, cb){
     var xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
     xhr.withCredentials = true
+    xhr.setRequestHeader('Content-Type', 'application/json')
     xhr.send(data)
     xhr.onreadystatechange = function(e) {
         if (xhr.readyState == 4) {
