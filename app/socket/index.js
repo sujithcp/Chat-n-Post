@@ -3,6 +3,7 @@ var clients = []
 var sharedSession = require("express-socket.io-session");
 var UserList = require('../socket/user_list')
 var Chats = require('../models/chats')
+var Unread = require('../models/unread_message')
 function broadcast(event_type, cause, obj) {
     Object.keys(clients).forEach(function(element) {
         if (element == cause)
@@ -108,12 +109,19 @@ var prepareIo = function() {
             connection.emit('feedback_from_server', data.message)
             Chats.findOne({participants:{$all:[data.to, user_email]}}, (err, result)=>{
                 if(result){
-                    result.messages.push({author:user_email, message:data.message})
+                    result.messages.push({author:user_email, message:data.message, read:false})
                     result.save()
                 }
             })
             if(data.to in clients){
                 clients[data.to].emit('chat_message_from_server', {from:user_email, message:data.message});
+            }
+            else{
+                new Unread({
+                    from:user_email,
+                    to:data.to,
+                    message:data.message
+                }).save()
             }
         })
         connection.emit('identity_from_server', user_email)
