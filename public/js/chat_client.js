@@ -223,3 +223,6 @@ socket.on("photo_update", ()=>{
     ajaxPhotoRequest()
 })
 ajaxPhotoRequest()
+sendXhr('GET', 'new_messages', null, (response)=>{
+    console.log("New message : " + response)
+})
