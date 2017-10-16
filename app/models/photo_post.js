@@ -7,6 +7,7 @@ var photoPostSchema = mongoose.Schema({
 	time:String,
 	location:String,
 	click_count:Number,
+	caption:String
 })
 var photoPostModel = mongoose.model('photo_post', photoPostSchema)
 

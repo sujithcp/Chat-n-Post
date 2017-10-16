@@ -3,8 +3,12 @@ var PhotPost = require('../models/photo_post')
 var PublicProfile = require('../models/public_profile')
 var validator = require('validator')
 var multer = require('multer')
+var sharp = require('sharp')
+var fs = require('fs')
 var Path = require('path')
 var UserList = require('../socket/user_list')
+var Chats = require('../models/chats')
+var Unread = require('../models/unread_message')
 this.passport = require('../auth/')()
 var photoList = null
 var storage = multer.diskStorage({
@@ -13,7 +17,7 @@ var storage = multer.diskStorage({
     },
     filename: function(req, file, callback) {
         var date = new Date();
-        callback(null, date.toISOString() + req.session.user_email + file.originalname.match(/\..*$/))
+        callback(null, date.toISOString() + file.originalname.match(/\..*$/))
     }
 })
 var getNextBadge = function(badge) {
@@ -119,7 +123,7 @@ this.getProfile = (req, res) => {
 		res.redirect('/');
 		return;
 	}
-	console.log(req.params.what)
+	//console.log(req.params.what)
 	if(req.params.what=="data"){
 		var data = {}
 		PublicProfile.findOne({email:req.session.user_email}, (err, profile)=>{
@@ -148,7 +152,6 @@ this.getProfile = (req, res) => {
 				}).save()
 				res.end("")
 			}
-				
 		})
 	}
 	else if(req.params.what=="edit"){
@@ -158,6 +161,27 @@ this.getProfile = (req, res) => {
 		res.render('profile')
 	}	
 }
+this.postReadMessages = (req, res)=>{
+	if (!(req.session ? req.session.user_email : false)) {
+		res.redirect('/');
+		return;
+	}
+	
+}
+this.getNewMessages = (req, res)=>{
+	if (!(req.session ? req.session.user_email : false)) {
+		res.redirect('/');
+		return;
+	}
+	Unread.find({to:req.session.user_email}, (err, docs)=>{
+		if(docs){
+			res.json(docs)
+			return
+		}
+		res.json([])
+	})
+}
+	
 this.postRegister = function(req, res) {
 	var user = req.body
 	if (!validator.isEmail(user.user_email)) {
@@ -211,7 +235,7 @@ this.postLogin = function(req, res) {
 			if (status) {
 				// set session here
 				req.session.user_email = user.user_email
-				console.log(req.session.user_email)
+				//console.log(req.session.user_email)
 				res.redirect('/home')
 			} else {
 				res.end("" + status)
@@ -222,23 +246,13 @@ this.postLogin = function(req, res) {
 	});
 }
 this.postPhoto = function(req, res) {
+	
 	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
+		res.redirect('/')
 		return;
 	}
-	upload.single('photo')(req, res, (err) => {
-		if (err) {
-			console.log(err)
-			res.end(err.toString())
-			return;
-		}
-		var newPost = new PhotPost({
-			'name': req.file.filename,
-			'user_email': req.session.user_email,
-			'time': new Date().toISOString(),
-			'location': req.file.path
-		})
-		newPost.save((err, data, numAffected) => {
+	upload.fields([{name:'photo', maxCount:1}])(req, res, (err) => {
+		var doPhotoUpdate = (err, data, numAffected) => {
 			if (err) {
 				res.redirect('/home');
 				return;
@@ -250,10 +264,54 @@ this.postPhoto = function(req, res) {
 					return;
 				}
 				photoList = result
-				global.io.emit('photo_update_broadcast')
+				global.io.emit('photo_update')
 			})
-		})
+		}
+		if (err) {
+			console.log(err)
+			res.end(err.toString())
+			return;
+		}
+		if(!req.files['photo']){
+			if(!req.body.caption){
+				res.redirect('/home')
+				return
+			}
+			new PhotPost({
+				'user_email': req.session.user_email,
+				'time': new Date().toISOString(),
+				'caption':req.body.caption
+			}).save(doPhotoUpdate)
+			res.redirect('/home')
+			return
+		}
+		req.file = req.files['photo'][0]
+		console.log(req.body)
+		//console.log(req.files['photo'])
+		var filename = new Date().toISOString() + req.session.user_email + req.file.filename.match(/\..*$/)
+		sharp(req.file.path)
+			.resize(1600,1600)
+			.max()
+			.toFile("app/uploads/" + filename, (err, info)=>{
+				if(err){
+					console.log(err)
+					return
+				}
+				//console.log(info)
+				fs.unlink(req.file.path, (err)=>{
+					if(err){
+						console.log(err)
+					}
+				})
+				new PhotPost({
+					'name': filename,
+					'user_email': req.session.user_email,
+					'time': new Date().toISOString(),
+					'location': "app/uploads/" + filename,
+					'caption':req.body.caption
+				}).save(doPhotoUpdate)
 
+			})
 		res.redirect('/home');
 	});
 }
@@ -322,5 +380,34 @@ this.postProfile = (req, res)=> {
 		}
 		res.redirect('/profile')
 	})
+}
+this.getChatHistory = (req, res)=>{
+	//console.log(req.body)
+	Users.findOne({email:req.body.mate}, (err, result)=>{
+		if(result){
+			Chats.findOne({participants:{$all:[req.body.me, req.body.mate]}}, (err, result)=>{
+				if(err){
+					console.log(err.toString())
+					return
+				}
+				if(!result){
+					new Chats({
+						participants : [req.body.me, req.body.mate],
+						messages:[]
+					}).save()
+					res.json([])
+				}
+				else{
+					res.json(result.messages)
+				}
+			})
+		}
+		else{
+			res.status(400)
+			res.end()
+		}
+	})
+	
+
 }
 module.exports = this

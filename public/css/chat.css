@@ -72,6 +72,8 @@
 	height: 100%;
 	background: #FFFFFF;
 	padding: 4px;
+	float: left;
+	width: 100%;
 }
 .user{
 	height: 40px;
@@ -137,4 +139,9 @@ input{
 }
 #group_chat, #one_one_chat{
 	max-height: 100%;
+}
+#new_chat{
+	height: 30px;
+	width: 100%;
+	float: left;
 }

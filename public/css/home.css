@@ -4,6 +4,11 @@
 	background: #FFFFFF;
 	float: left;
 	padding: 20px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #8E8E96;
+	border-radius: 3px;
+	
 }
 .photo_div{
 	width: 100%;
@@ -44,5 +49,11 @@ input[type="file"], button, #photo{
 	display: inline-block;
 	width: 100%;
 	background: white;
+}
+textarea#caption{
+	float:left;
+	clear:both;
+	width:100%;
+	resize:none;
 }
 

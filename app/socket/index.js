@@ -2,7 +2,8 @@ var io = null
 var clients = []
 var sharedSession = require("express-socket.io-session");
 var UserList = require('../socket/user_list')
-
+var Chats = require('../models/chats')
+var Unread = require('../models/unread_message')
 function broadcast(event_type, cause, obj) {
     Object.keys(clients).forEach(function(element) {
         if (element == cause)
@@ -10,7 +11,7 @@ function broadcast(event_type, cause, obj) {
         clients[element].emit(event_type, obj)
     }, this);
 }
-
+/*
 function bind(a_user_email, b_user_email) {
     var a = clients[a_user_email]
     var b = clients[b_user_email]
@@ -42,6 +43,7 @@ function bind(a_user_email, b_user_email) {
         a.emit('chat_message_from_server', data);
     })
 }
+*/
 var init = function(server, session) {
     global.io = require('socket.io')(server)
     io = global.io
@@ -83,6 +85,7 @@ var prepareIo = function() {
             connection.removeAllListeners('chat_message_from_server')
 
         })
+        /*
         connection.on('connection_request', function(user) {
             if (!clients[user]) {
                 connection.emit('status_from_server', 'Requested client not online!')
@@ -93,11 +96,41 @@ var prepareIo = function() {
         connection.on('rejected', function(user) {
             clients[user].emit('rejected_from_server', user_email)
         })
+        
         connection.on('ready', function(user) {
             console.log("session-name : " + user_email)
             clients[user].emit('ready_from_server', user_email)
             bind(user_email, user)
 
+        })
+        */
+        connection.on('chat_message', function(data){
+            console.log(data)
+            connection.emit('feedback_from_server', data.message)
+            Chats.findOne({participants:{$all:[data.to, user_email]}}, (err, result)=>{
+                if(result){
+                    result.messages.push({author:user_email, message:data.message, read:false})
+                    result.save()
+                }
+            })
+            if(data.to in clients){
+                clients[data.to].emit('chat_message_from_server', {from:user_email, message:data.message});
+            }
+            else{
+                new Unread({
+                    from:user_email,
+                    to:data.to,
+                    message:data.message
+                }).save()
+            }
+        })
+        connection.on('read_message', (data)=>{
+            Unread.remove({from:data.from, to:user_email}, (err)=>{
+                if(err)
+                    console.log(err.toString())
+                else
+                    console.log("Removed messages from unread db")
+            })
         })
         connection.emit('identity_from_server', user_email)
         console.log("New connection from : " + user_email)
@@ -106,9 +139,6 @@ var prepareIo = function() {
         broadcast('user_list_update', user_email)
         connection.emit('group_special_from_server', 'You joined now.')
         broadcast('group_special_from_server', user_email, user_email + " joined.")
-    })
-    io.on("photo_update_broadcast", ()=>{
-        broadcast('photo_update', null, null)
     })
 }
 module.exports = init
