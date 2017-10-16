@@ -53,6 +53,7 @@ function getChatMessages(e, mate_param){
     var mate = mate_param
     if(!mate)
         mate = div.id
+        console.log("reading unread messages")
     sendXhr('POST', '/chat_messages', JSON.stringify({'me':me, 'mate':mate}), (messages)=>{
         //console.log(messages)
         if(!messages)
@@ -170,13 +171,13 @@ function fetchUserList() {
                     var user = document.getElementById(newMessages[i].from)
                     if(!user){
                         user = createUserItem(newMessages[i].from)
-                        user.style.background = "#ffaaaa"
+                        user.style.background = "#ff5310"
                         chatUserList.appendChild(user)
                         updateCount(newMessages[i].from, user.newMessageCount + 1)
                         
                     }
                     else{
-                        user.style.background = "#ffaaaa"
+                        user.style.background = "#ff5310"
                         updateCount(newMessages[i].from, user.newMessageCount + 1)
                     }
                 }
@@ -193,12 +194,12 @@ socket.on('chat_message_from_server', function(data) {
         var user = document.getElementById(data.from)
         //console.log(user)
         if(user){
-            user.style.background = "#ffaaaa"
+            user.style.background = "#ff5310"
             updateCount(data.from, user.newMessageCount + 1)
         }
         else{
             user = createUserItem(data.from)
-            user.style.background = "#ffaaaa"
+            user.style.background = "#ff5310"
             updateCount(data.from, user.newMessageCount + 1)
             chatUserList.appendChild(user)   
         }

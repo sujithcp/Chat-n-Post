@@ -161,13 +161,6 @@ this.getProfile = (req, res) => {
 		res.render('profile')
 	}	
 }
-this.postReadMessages = (req, res)=>{
-	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
-		return;
-	}
-	
-}
 this.getNewMessages = (req, res)=>{
 	if (!(req.session ? req.session.user_email : false)) {
 		res.redirect('/');

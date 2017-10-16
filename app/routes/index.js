@@ -27,6 +27,4 @@ router.get('/', controllers.getRoot)
     .post('/like/:photo', controllers.postLike)
     .post('/profile', controllers.upload.none(), controllers.postProfile)
     .post('/chat_messages', controllers.getChatHistory)
-    .post('/read_messages', controllers.postReadMessages)
-
 module.exports = router;

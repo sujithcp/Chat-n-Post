@@ -116,13 +116,11 @@ var prepareIo = function() {
             if(data.to in clients){
                 clients[data.to].emit('chat_message_from_server', {from:user_email, message:data.message});
             }
-            else{
-                new Unread({
-                    from:user_email,
-                    to:data.to,
-                    message:data.message
-                }).save()
-            }
+            new Unread({
+                from:user_email,
+                to:data.to,
+                message:data.message
+            }).save()
         })
         connection.on('read_message', (data)=>{
             Unread.remove({from:data.from, to:user_email}, (err)=>{
