@@ -25,7 +25,7 @@ router.get('/', controllers.getRoot)
     .post('/login', controllers.upload.none(), controllers.postLogin)
     .post('/post_photo', controllers.postPhoto)
     .post('/like/:photo', controllers.postLike)
-    .post('/profile',controllers.upload.none(), controllers.postProfile)
+    .post('/profile', controllers.upload.none(), controllers.postProfile)
     .post('/chat_messages', controllers.getChatHistory)
     .post('/read_messages', controllers.postReadMessages)
 
