@@ -248,7 +248,7 @@ this.postLogin = function(req, res) {
 this.postPhoto = function(req, res) {
 	
 	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
+		res.redirect('/')
 		return;
 	}
 	upload.fields([{name:'photo', maxCount:1}])(req, res, (err) => {

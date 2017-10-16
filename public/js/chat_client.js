@@ -47,25 +47,12 @@ function createMessageNode(msg, className) {
     p.appendChild(document.createTextNode(msg))
     return item;
 }
-/*
-function sendRequest(e) {
-    if (chatArea.hidden) {
-        toggleIcon.click()
-    }
-    var div = e.target
-    console.log(e.target)
-    socket.emit('connection_request', div.innerHTML)
-    document.getElementById('status').innerHTML = "Requesting connection to " + div.innerHTML;
-    singleChatDiv.hidden = false;
-    groupChatDiv.hidden = true;
-}
-*/
 
 function getChatMessages(e, mate_param){
     var div = e.target
     var mate = mate_param
     if(!mate)
-        mate = div.innerHTML
+        mate = div.id
     sendXhr('POST', '/chat_messages', JSON.stringify({'me':me, 'mate':mate}), (messages)=>{
         //console.log(messages)
         if(!messages)
@@ -93,12 +80,20 @@ function getChatMessages(e, mate_param){
         socket.emit('read_message', {from:mate})
     })
 }
+
+function updateCount(email, newCount){
+    var div = document.getElementById(email)
+    document.getElementById(email).innerHTML = ""
+    div.appendChild(document.createTextNode("(" + newCount + ") " + email ))
+    div.newMessageCount = newCount
+}
 function createUserItem(email){
     if (email == me)
             return null
     var div = document.createElement('div');
     div.setAttribute('class', 'user')
     div.id = email
+    div.newMessageCount = 0
     var name = document.createTextNode('' + email)
     div.appendChild(name)
     div.onclick = getChatMessages
@@ -169,51 +164,27 @@ function fetchUserList() {
             createUserItems(response)
             console.log('USER_LIST_UPDATE')
             sendXhr('GET', 'new_messages', null, (response)=>{
-                console.log("New message : " + response)
+                //console.log("New message : " + response)
                 var newMessages = JSON.parse(response)
                 for(var i in newMessages){
                     var user = document.getElementById(newMessages[i].from)
                     if(!user){
-                        var userDiv = createUserItem(newMessages[i].from)
-                        userDiv.style.background = "#ffaaaa"
-                        chatUserList.appendChild(userDiv)
+                        user = createUserItem(newMessages[i].from)
+                        user.style.background = "#ffaaaa"
+                        chatUserList.appendChild(user)
+                        updateCount(newMessages[i].from, user.newMessageCount + 1)
+                        
                     }
                     else{
                         user.style.background = "#ffaaaa"
+                        updateCount(newMessages[i].from, user.newMessageCount + 1)
                     }
                 }
             })
         }
     })   
 }
-/*
-setInterval(()=>{
-	fetchUserList()
-}, 6000)
-*/
-/*
-socket.on('connection_request_from_server', function(user) {
-    if (confirm('Connect to ' + user + "?")) {
-        current_chat.partner = user;
-        connected = true
-        socket.emit('ready', user)
-    } else {
-        socket.emit('rejected', user)
-    }
-})
 
-socket.on('ready_from_server', function(user) {
-    document.getElementById('chat').innerHTML = "";
-    connected = true
-    current_chat.partner = user;
-    document.getElementById('status').innerHTML = "Connected.... to " + user;
-    if (chatArea.hidden) {
-        toggleIcon.click()
-    }
-    singleChatDiv.hidden = false;
-    groupChatDiv.hidden = true;
-})
-*/
 socket.on('chat_message_from_server', function(data) {
     //console.log(data)
     if(current_chat.partner==data.from && !chatArea.hidden)
@@ -221,12 +192,15 @@ socket.on('chat_message_from_server', function(data) {
     else{
         var user = document.getElementById(data.from)
         //console.log(user)
-        if(user)
+        if(user){
             user.style.background = "#ffaaaa"
+            updateCount(data.from, user.newMessageCount + 1)
+        }
         else{
             user = createUserItem(data.from)
             user.style.background = "#ffaaaa"
-            chatUserList.appendChild(user)
+            updateCount(data.from, user.newMessageCount + 1)
+            chatUserList.appendChild(user)   
         }
     }
 })
@@ -246,11 +220,6 @@ socket.on('identity_from_server', function(email) {
 socket.on('user_list_update', function() {
     fetchUserList()
 })
-/*
-socket.on('rejected_from_server', function() {
-    document.getElementById('status').innerHTML = "Last Connection rejected";
-})
-*/
 
 socket.on('group_message_from_server', function(obj) {
     groupContainer.insertBefore(createGroupMessageNode(obj, 'chatmate'), groupContainer.firstChild)
