@@ -19,12 +19,14 @@ var groupChatDiv = document.getElementById('group_chat')
 var groupChatButton = document.getElementById("group_chat_button")
 var groupButton = document.getElementById('send_button_group')
 var groupChatMsg = document.getElementById('msg_group')
+var newChat = document.getElementById("new_chat")
 toggleIcon.onclick = function(e) {
     if (chatArea.hidden) {
         chatArea.hidden = false
         chatUserList.hidden = true
 		toggleIcon.setAttribute('src', "/assets/toggle-right.png")
-		groupChatButton.hidden = true
+        groupChatButton.hidden = true
+        newChat.hidden = true
 		singleChatDiv.hidden = false;
 		groupChatDiv.hidden = true;
         fetchUserList()
@@ -32,7 +34,8 @@ toggleIcon.onclick = function(e) {
         chatArea.hidden = true
         chatUserList.hidden = false
 		toggleIcon.setAttribute('src', "/assets/toggle-left.png")
-		groupChatButton.hidden = false
+        groupChatButton.hidden = false
+        newChat.hidden = false
     }
 }
 
@@ -58,10 +61,15 @@ function sendRequest(e) {
 }
 */
 
-function getChatMessages(e){
+function getChatMessages(e, mate_param){
     var div = e.target
-    var mate = div.innerHTML
+    var mate = mate_param
+    if(!mate)
+        mate = div.innerHTML
     sendXhr('POST', '/chat_messages', JSON.stringify({'me':me, 'mate':mate}), (messages)=>{
+        console.log(messages)
+        if(!messages)
+            return
         messages = JSON.parse(messages)
         //console.log(messages)
         document.getElementById('chat').innerHTML = "";
@@ -82,6 +90,7 @@ function getChatMessages(e){
                 container.insertBefore(createMessageNode(msg.message, 'chatmate'), container.firstChild)
             }
         }
+        socket.emit('read_message', {from:mate})
     })
 }
 function createUserItems(list) {
@@ -113,6 +122,16 @@ function createGroupMessageNode(object, className) {
     item.appendChild(p)
     p.appendChild(document.createTextNode(object.msg))
     return item;
+}
+newChat.onkeypress = function(e){
+    if (!e) e = window.event;
+    var keyCode = e.keyCode || e.which;
+    if (keyCode == '13'){
+        if(!newChat.value)
+            return
+        var mate = newChat.value.trim().toLowerCase()
+        getChatMessages(e, mate)
+    }
 }
 button.onclick = function(e) {
     console.log(connected)

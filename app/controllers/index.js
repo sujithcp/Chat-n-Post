@@ -123,7 +123,7 @@ this.getProfile = (req, res) => {
 		res.redirect('/');
 		return;
 	}
-	console.log(req.params.what)
+	//console.log(req.params.what)
 	if(req.params.what=="data"){
 		var data = {}
 		PublicProfile.findOne({email:req.session.user_email}, (err, profile)=>{
@@ -236,7 +236,7 @@ this.postLogin = function(req, res) {
 			if (status) {
 				// set session here
 				req.session.user_email = user.user_email
-				console.log(req.session.user_email)
+				//console.log(req.session.user_email)
 				res.redirect('/home')
 			} else {
 				res.end("" + status)
@@ -247,16 +247,33 @@ this.postLogin = function(req, res) {
 	});
 }
 this.postPhoto = function(req, res) {
+	
 	if (!(req.session ? req.session.user_email : false)) {
 		res.redirect('/');
 		return;
 	}
-	upload.single('photo')(req, res, (err) => {
+	upload.fields([{name:'photo', maxCount:1}])(req, res, (err) => {
 		if (err) {
 			console.log(err)
 			res.end(err.toString())
 			return;
 		}
+		if(!req.files['photo']){
+			if(!req.body.caption){
+				res.redirect('/home')
+				return
+			}
+			new PhotPost({
+				'user_email': req.session.user_email,
+				'time': new Date().toISOString(),
+				'caption':req.body.caption
+			}).save()
+			res.redirect('/home')
+			return
+		}
+		req.file = req.files['photo'][0]
+		console.log(req.body)
+		//console.log(req.files['photo'])
 		var filename = new Date().toISOString() + req.session.user_email + req.file.filename.match(/\..*$/)
 		sharp(req.file.path)
 			.resize(1600,1600)
@@ -266,7 +283,7 @@ this.postPhoto = function(req, res) {
 					console.log(err)
 					return
 				}
-				console.log(info)
+				//console.log(info)
 				fs.unlink(req.file.path, (err)=>{
 					if(err){
 						console.log(err)
@@ -276,7 +293,8 @@ this.postPhoto = function(req, res) {
 					'name': filename,
 					'user_email': req.session.user_email,
 					'time': new Date().toISOString(),
-					'location': "app/uploads/" + filename
+					'location': "app/uploads/" + filename,
+					'caption':req.body.caption
 				}).save((err, data, numAffected) => {
 					if (err) {
 						res.redirect('/home');
@@ -364,23 +382,32 @@ this.postProfile = (req, res)=> {
 	})
 }
 this.getChatHistory = (req, res)=>{
-	console.log(req.body)
-	Chats.findOne({participants:{$all:[req.body.me, req.body.mate]}}, (err, result)=>{
-		if(err){
-			console.log(err.toString())
-			return
-		}
-		if(!result){
-			new Chats({
-				participants : [req.body.me, req.body.mate],
-				messages:[]
-			}).save()
-			res.json([])
+	//console.log(req.body)
+	Users.findOne({email:req.body.mate}, (err, result)=>{
+		if(result){
+			Chats.findOne({participants:{$all:[req.body.me, req.body.mate]}}, (err, result)=>{
+				if(err){
+					console.log(err.toString())
+					return
+				}
+				if(!result){
+					new Chats({
+						participants : [req.body.me, req.body.mate],
+						messages:[]
+					}).save()
+					res.json([])
+				}
+				else{
+					res.json(result.messages)
+				}
+			})
 		}
 		else{
-			res.json(result.messages)
+			res.status(400)
+			res.end()
 		}
 	})
+	
 
 }
 module.exports = this

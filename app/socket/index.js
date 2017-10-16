@@ -124,6 +124,14 @@ var prepareIo = function() {
                 }).save()
             }
         })
+        connection.on('read_message', (data)=>{
+            Unread.remove({from:data.from, to:user_email}, (err)=>{
+                if(err)
+                    console.log(err.toString())
+                else
+                    console.log("Removed messages from unread db")
+            })
+        })
         connection.emit('identity_from_server', user_email)
         console.log("New connection from : " + user_email)
         clients[user_email] = connection

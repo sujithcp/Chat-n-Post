@@ -31,7 +31,10 @@
 <div class="container" id="main_container">
    <div class = "photo_post input-group">
       <form class="form-element" action="/post_photo" method="post" enctype="multipart/form-data">
-         <input type="file" name="photo" accept="image/*" required />
+        <div style="display:block;">
+            <input type="file" name="photo" accept="image/*"><br>
+            <textarea name="caption" id="caption" cols="30" rows="5" style="float:left;clear:both;" maxlength="100"></textarea>
+        </div>
          <button type="submit">Post</button>
       </form>
    </div>
@@ -68,6 +71,7 @@
             </div>
             <div>
                <div><img src="/assets/group-icon.png" height="40px" width="40px" id="group_chat_button"></div>
+               <div style="display:block;"><input type="text" id="new_chat" placeholder="New chat:email"></div>
                <div id='chat_user_list'></div>
             </div>
          </div>
