@@ -140,8 +140,5 @@ var prepareIo = function() {
         connection.emit('group_special_from_server', 'You joined now.')
         broadcast('group_special_from_server', user_email, user_email + " joined.")
     })
-    io.on("photo_update_broadcast", ()=>{
-        broadcast('photo_update', null, null)
-    })
 }
 module.exports = init

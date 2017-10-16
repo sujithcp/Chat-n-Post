@@ -2,7 +2,7 @@ var photoList = []
 var xhr = new XMLHttpRequest();
 var photoContainer = document.getElementById('posts')
 function createImageCard(image_data){
-	console.log(image_data)
+	//console.log(image_data)
 	var div = document.createElement('div')
 	div.setAttribute('class', 'material_card photo_div')
 	div.appendChild(document.createTextNode(image_data.user_email + ": "))
@@ -35,7 +35,7 @@ function createImageCards(response){
 var ajaxPhotoRequest = function(){
 	console.log("refreshing photo urls")
 	sendXhr('GET','/photo_list',null,(response)=>{
-		//console.log(response)
+		//	console.log(response)
 		if(response){
 			createImageCards(response)
 		}

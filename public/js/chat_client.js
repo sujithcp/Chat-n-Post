@@ -67,7 +67,7 @@ function getChatMessages(e, mate_param){
     if(!mate)
         mate = div.innerHTML
     sendXhr('POST', '/chat_messages', JSON.stringify({'me':me, 'mate':mate}), (messages)=>{
-        console.log(messages)
+        //console.log(messages)
         if(!messages)
             return
         messages = JSON.parse(messages)
@@ -93,18 +93,24 @@ function getChatMessages(e, mate_param){
         socket.emit('read_message', {from:mate})
     })
 }
+function createUserItem(email){
+    if (email == me)
+            return null
+    var div = document.createElement('div');
+    div.setAttribute('class', 'user')
+    div.id = email
+    var name = document.createTextNode('' + email)
+    div.appendChild(name)
+    div.onclick = getChatMessages
+    return div   
+}
 function createUserItems(list) {
     document.getElementById('chat_user_list').innerHTML = ""
     var list = JSON.parse(list)
     for (var i in list) {
-        if (list[i] == me)
-            continue;
-        var div = document.createElement('div');
-        div.setAttribute('class', 'user')
-        var name = document.createTextNode('' + list[i])
-        div.appendChild(name)
-        div.onclick = getChatMessages
-        chatUserList.appendChild(div)
+        var userDiv = createUserItem(list[i])
+        if(userDiv)
+            chatUserList.appendChild(userDiv)
     }
 }
 
@@ -159,9 +165,24 @@ function fetchUserList() {
 
     sendXhr('GET', '/get_user_list', null, (response)=>{
         if(response){
-            console.log(response)
+            //console.log(response)
             createUserItems(response)
             console.log('USER_LIST_UPDATE')
+            sendXhr('GET', 'new_messages', null, (response)=>{
+                console.log("New message : " + response)
+                var newMessages = JSON.parse(response)
+                for(var i in newMessages){
+                    var user = document.getElementById(newMessages[i].from)
+                    if(!user){
+                        var userDiv = createUserItem(newMessages[i].from)
+                        userDiv.style.background = "#ffaaaa"
+                        chatUserList.appendChild(userDiv)
+                    }
+                    else{
+                        user.style.background = "#ffaaaa"
+                    }
+                }
+            })
         }
     })   
 }
@@ -194,11 +215,19 @@ socket.on('ready_from_server', function(user) {
 })
 */
 socket.on('chat_message_from_server', function(data) {
-    console.log(data)
-    if(current_chat.partner==data.from)
+    //console.log(data)
+    if(current_chat.partner==data.from && !chatArea.hidden)
         container.insertBefore(createMessageNode(data.message, 'chatmate'), container.firstChild)
     else{
-
+        var user = document.getElementById(data.from)
+        //console.log(user)
+        if(user)
+            user.style.background = "#ffaaaa"
+        else{
+            user = createUserItem(data.from)
+            user.style.background = "#ffaaaa"
+            chatUserList.appendChild(user)
+        }
     }
 })
 
@@ -210,7 +239,7 @@ socket.on('feedback_from_server', function(msg) {
 })
 socket.on('identity_from_server', function(email) {
     me = email;
-    console.log(me)
+    //console.log(me)
     fetchUserList()
     document.getElementById('username').appendChild(document.createTextNode(me))
 })
@@ -242,6 +271,3 @@ socket.on("photo_update", ()=>{
     ajaxPhotoRequest()
 })
 ajaxPhotoRequest()
-sendXhr('GET', 'new_messages', null, (response)=>{
-    console.log("New message : " + response)
-})

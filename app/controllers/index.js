@@ -152,7 +152,6 @@ this.getProfile = (req, res) => {
 				}).save()
 				res.end("")
 			}
-				
 		})
 	}
 	else if(req.params.what=="edit"){
@@ -253,6 +252,21 @@ this.postPhoto = function(req, res) {
 		return;
 	}
 	upload.fields([{name:'photo', maxCount:1}])(req, res, (err) => {
+		var doPhotoUpdate = (err, data, numAffected) => {
+			if (err) {
+				res.redirect('/home');
+				return;
+			}
+			PhotPost.find({}, (err, result) => {
+				if (err) {
+					console.log('error')
+					photoList = null
+					return;
+				}
+				photoList = result
+				global.io.emit('photo_update')
+			})
+		}
 		if (err) {
 			console.log(err)
 			res.end(err.toString())
@@ -267,7 +281,7 @@ this.postPhoto = function(req, res) {
 				'user_email': req.session.user_email,
 				'time': new Date().toISOString(),
 				'caption':req.body.caption
-			}).save()
+			}).save(doPhotoUpdate)
 			res.redirect('/home')
 			return
 		}
@@ -295,21 +309,7 @@ this.postPhoto = function(req, res) {
 					'time': new Date().toISOString(),
 					'location': "app/uploads/" + filename,
 					'caption':req.body.caption
-				}).save((err, data, numAffected) => {
-					if (err) {
-						res.redirect('/home');
-						return;
-					}
-					PhotPost.find({}, (err, result) => {
-						if (err) {
-							console.log('error')
-							photoList = null
-							return;
-						}
-						photoList = result
-						global.io.emit('photo_update_broadcast')
-					})
-				})
+				}).save(doPhotoUpdate)
 
 			})
 		res.redirect('/home');
