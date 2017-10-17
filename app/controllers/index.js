@@ -342,7 +342,7 @@ this.postLike = function(req, res) {
 		}
 		else{
 			new PublicProfile({
-				'name':/^.+\@/.exec(req.session.user_email.email)[0],
+				'name':/^.+\@/.exec(req.session.user_email)[0],
 				'email':req.session.user_email,
 				'badge':'A',
 				'score':0,
