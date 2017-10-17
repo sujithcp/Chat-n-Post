@@ -76,19 +76,50 @@
 	width: 100%;
 }
 .user{
-	height: 40px;
+	display: inline-block;
+	height: 50px;
+	width: 100%;
 	background: #59A700;
 	border-bottom-style: solid;
 	border-bottom-color: #ffffff;
 	border-bottom-width: 2px;
-	vertical-align: middle;
-	line-height: 40px;
-	font-family: ubuntu;
+	font-family: Courier New, Courier, monospace;
 	font-weight: solid;
 	font-variant-caps: all-petite-caps;
-	font-size: 2em;
+	font-size: 20px;
 	color: #ffffff;
+	float: left;
+}
+.user > .user_icon{
+	width: 40px;
+	height: 40px;
+	margin: 3px;
+	float: left;
+	border-style: solid;
+	border-width: 2px;
+	border-color: #ffffff;
+	border-radius: 20px;
+	background: #ffffff;
+	vertical-align: middle;
+	line-height: 50px;
+	object-fit: cover;
+}
+.user > .user_email{
+	margin-left: 5px;
+	margin-right: 5px;
+	float: left;
+	vertical-align: middle;
+	line-height: 50px;
+	text-overflow: clip;
+}
+.user > .new_messages{
+	display: block;
+	float: right;
 	overflow: hidden;
+	margin-right: 5px;
+	font-weight: bold;
+	line-height: 50px;
+	color: #ffffff;
 }
 #status, #status_group{
 	font-size: 1em;
@@ -108,7 +139,7 @@
 	vertical-align: middle;
 	line-height: 100%;
 	width: 100%;
-	height: 10%;
+	height: 60px;
 }
 input{
 	float: left;

@@ -2,10 +2,14 @@
 	<div class="profile" class="form-group">
 		<form action="/profile" method="post" enctype="multipart/form-data">
 			<div class="pic">
-					<div class="img"><img src="/favicon.ico" id="dp"/></div>
-					<i class="icon-plus"></i>
-					<i class="icon-ok"></i>
-				</div>
+					<div class="img">
+						<label for="dp_input">
+								<img src="/favicon.ico" id="dp"/>
+						</label>
+						<input type="file" accept="image/*" name="dp" id="dp_input" hidden>
+					</div>
+			</div>
+			<div>
 				<input type="text" value="name" id="name" class="form-control" name="name" maxlength="20">
 				<p id="email">foo@foo.com</p>
 				<p id="score">0</p>

@@ -94,14 +94,27 @@ this.getPhoto = (req, res) => {
 		return;
 	}
 	var path = req.query.path
-	res.sendFile(Path.normalize(__dirname + "/../uploads/") + path, {
-		dotfiles: 'deny'
-	}, function(err) {
-		if (err) {
-			res.end("Error serving the file.")
-			console.log("" + err.toString())
-		}
-	})
+	if(!path){
+		if(!req.query.email)
+			return
+		PhotPost.findOne({user_email:req.query.email}, (err, result)=>{
+			if(result)
+				res.redirect("/photo?path=" + result.name)
+			else	
+				res.redirect('/favicon.ico')
+		})
+	}
+	else{
+		res.sendFile(Path.normalize(__dirname + "/../uploads/") + path, {
+			dotfiles: 'deny'
+		}, function(err) {
+			if (err) {
+				res.end("Error serving the file.")
+				console.log("" + err.toString())
+			}
+		})
+	}
+	
 }
 this.getUserList = (req, res) => {
 	if (!(req.session ? req.session.user_email : false)) {
@@ -137,7 +150,6 @@ this.getProfile = (req, res) => {
 					data.name = profile.name
 					data.score = profile.score
 					data.badge = profile.badge
-					data.bio = "Bla Bla Bla"
 					res.end(JSON.stringify(data))
 					return
 				})

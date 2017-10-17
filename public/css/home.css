@@ -1,6 +1,7 @@
 #posts{
 	width: 60%;
 	min-height: 600px;
+	min-width: 300px;
 	background: #FFFFFF;
 	float: left;
 	padding: 20px;
@@ -12,19 +13,33 @@
 }
 .photo_div{
 	width: 100%;
+	min-width: 200px;
 	clear: both; 
 	background: #ffffff;
 	height: auto;
 	margin-bottom: 10px;
 	margin-right: 10px;
+	display: block;
+}
+.photo_div > div{
+	width: 100%;
+	background: #ffffff;
+	color: #5555ff;
+	text-overflow: ellipsis;
+	position: relative;
+	overflow: hidden;
+	text-align: justify;
+	text-justify: inter-word;
+	padding: 10px;
 }
 #main_container{
 	margin-top: 75px;
 }
 .photo_post{
 	width: 100%;
+	min-width: 300px;
 	display: inline-block;
-	background: #FFFFFF;
+	margin-bottom: 5px;
 }
 input[type="file"], button, #photo{
 	float: left;
@@ -36,6 +51,7 @@ input[type="file"], button, #photo{
 #chat_region{
 	padding-top: 20px;
 	width: 40%;
+	min-width: 150px;
 	height: 600px;
 	max-height: 600px;
 	background: #FFFFFF;
@@ -48,6 +64,7 @@ input[type="file"], button, #photo{
 #container2{
 	display: inline-block;
 	width: 100%;
+	min-width: 300px;
 	background: white;
 }
 textarea#caption{

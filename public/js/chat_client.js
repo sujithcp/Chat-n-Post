@@ -1,7 +1,8 @@
 var socket = io();
 current_chat = {
     partner: '',
-    ready: false
+    ready: false,
+    isGroup:false
 }
 var connected = false
 var container = document.getElementById('chat')
@@ -27,8 +28,15 @@ toggleIcon.onclick = function(e) {
 		toggleIcon.setAttribute('src', "/assets/toggle-right.png")
         groupChatButton.hidden = true
         newChat.hidden = true
-		singleChatDiv.hidden = false;
-		groupChatDiv.hidden = true;
+        if(!current_chat.isGroup){
+            singleChatDiv.hidden = false;
+            groupChatDiv.hidden = true;
+            getChatMessages(e, current_chat.partner)
+        }
+        else{
+            singleChatDiv.hidden = true;
+            groupChatDiv.hidden = false;
+        }
         fetchUserList()
     } else {
         chatArea.hidden = true
@@ -36,6 +44,8 @@ toggleIcon.onclick = function(e) {
 		toggleIcon.setAttribute('src', "/assets/toggle-left.png")
         groupChatButton.hidden = false
         newChat.hidden = false
+        if(current_chat.isGroup)
+            fetchUserList()
     }
 }
 
@@ -52,7 +62,7 @@ function getChatMessages(e, mate_param){
     var div = e.target
     var mate = mate_param
     if(!mate)
-        mate = div.id
+        mate = div.id || div.parentElement.id
         console.log("reading unread messages")
     sendXhr('POST', '/chat_messages', JSON.stringify({'me':me, 'mate':mate}), (messages)=>{
         //console.log(messages)
@@ -67,6 +77,7 @@ function getChatMessages(e, mate_param){
         if (chatArea.hidden) {
             toggleIcon.click()
         }
+        current_chat.isGroup = false
         singleChatDiv.hidden = false;
         groupChatDiv.hidden = true;
         for(var i in messages){
@@ -84,19 +95,19 @@ function getChatMessages(e, mate_param){
 
 function updateCount(email, newCount){
     var div = document.getElementById(email)
-    document.getElementById(email).innerHTML = ""
-    div.appendChild(document.createTextNode("(" + newCount + ") " + email ))
+    div.getElementsByClassName('new_messages')[0].innerHTML = "" + newCount
     div.newMessageCount = newCount
 }
 function createUserItem(email){
     if (email == me)
             return null
+    var template = `<img class='user_icon' src='/photo?email=${email}'><span class='user_email'>${email}</span><span class='new_messages'>${0}</span>`
     var div = document.createElement('div');
     div.setAttribute('class', 'user')
     div.id = email
     div.newMessageCount = 0
-    var name = document.createTextNode('' + email)
-    div.appendChild(name)
+    div.innerHTML = template;
+    //div.getElementsByClassName('user_email')[0].onclick = getChatMessages
     div.onclick = getChatMessages
     return div   
 }
@@ -153,9 +164,11 @@ groupButton.onclick = function(e) {
     groupChatMsg.value = ""
 }
 groupChatButton.onclick = function(e) {
+    current_chat.isGroup = true
     toggleIcon.click();
     singleChatDiv.hidden = true;
-	groupChatDiv.hidden = false;
+    groupChatDiv.hidden = false;
+    
 }
 function fetchUserList() {
 
@@ -187,7 +200,7 @@ function fetchUserList() {
 }
 
 socket.on('chat_message_from_server', function(data) {
-    //console.log(data)
+    console.log(current_chat.partner + " " + chatArea.hidden)
     if(current_chat.partner==data.from && !chatArea.hidden)
         container.insertBefore(createMessageNode(data.message, 'chatmate'), container.firstChild)
     else{

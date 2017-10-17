@@ -5,7 +5,9 @@ function createImageCard(image_data){
 	//console.log(image_data)
 	var div = document.createElement('div')
 	div.setAttribute('class', 'material_card photo_div')
-	div.appendChild(document.createTextNode(image_data.user_email + ": "))
+	var postedBy = document.createElement('div')
+	postedBy.innerHTML = image_data.user_email
+	div.appendChild(postedBy)
 	if(image_data.name){
 		var img = document.createElement('img')
 		img.setAttribute('alt', "Image missing/loading")
@@ -19,7 +21,9 @@ function createImageCard(image_data){
 		div.appendChild(img)
 	}
 	if(image_data.caption){
-		div.appendChild(document.createTextNode(image_data.caption))
+		var caption = document.createElement('div')
+		caption.innerHTML = image_data.caption
+		div.appendChild(caption)
 	}		
 	photoContainer.insertBefore(div, photoContainer.firstChild)
 	
