@@ -11,6 +11,10 @@ var Chats = require('../models/chats')
 var Unread = require('../models/unread_message')
 this.passport = require('../auth/')()
 var photoList = null
+if(!fs.existsSync("app/uploads/")){
+	fs.mkdirSync("app/uploads/")
+	fs.mkdirSync("app/uploads/dp/")
+}
 var storage = multer.diskStorage({
     destination: function(req, file, callback) {
         callback(null, "./app/uploads/")
@@ -32,34 +36,31 @@ var upload = this.upload = multer({
         fileSize: 1000 * 1000
     }
 })
-this.getRoot = function(req, res) {
+this.sessionCheck = function(req, res, next){
 	if (req.session ? req.session.user_email : false) {
 		res.redirect('/home')
 		return;
 	}
+	next()
+}
+this.checkAuth = function(req, res, next){
+	if (!(req.session ? req.session.user_email : false)) {
+		res.redirect('/');
+		console.log("redirect from checkAuth")
+		return;
+	}
+	next()
+}
+this.getRoot = function(req, res) {
 	res.render('login')
 }
 this.getRegister = function(req, res) {
-	if (req.session ? req.session.user_email : false) {
-		res.redirect('/home')
-		return;
-	}
 	res.render('register')
 }
 this.getLogin = function(req, res) {
-	if (req.session ? req.session.user_email : false) {
-		res.redirect('/home')
-		return;
-	}
 	res.render('login')
 }
 this.getHome = function(req, res) {
-	// validate session here.
-	if (!req.session.user_email) {
-		res.redirect('/')
-		return;
-	}
-
 	res.render('home')
 }
 this.getLogout = function(req, res) {
@@ -68,10 +69,6 @@ this.getLogout = function(req, res) {
 	res.redirect('/')
 }
 this.getPhotoList = function(req, res) {
-	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
-		return;
-	}
 	if (!photoList) {
 		PhotPost.find({}, (err, result) => {
 			if (err) {
@@ -89,19 +86,17 @@ this.getPhotoList = function(req, res) {
 	}
 }
 this.getPhoto = (req, res) => {
-	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
-		return;
-	}
 	var path = req.query.path
 	if(!path){
 		if(!req.query.email)
 			return
-		PhotPost.findOne({user_email:req.query.email}, (err, result)=>{
-			if(result)
-				res.redirect("/photo?path=" + result.name)
-			else	
-				res.redirect('/favicon.ico')
+		res.sendFile(Path.normalize(__dirname + "/../uploads/dp/") + req.query.email + ".jpg", {
+			dotfiles:'deny'
+		}, function (err){
+			if (err) {
+				res.redirect("/favicon.ico")
+				console.log("" + err.toString())
+			}
 		})
 	}
 	else{
@@ -117,10 +112,6 @@ this.getPhoto = (req, res) => {
 	
 }
 this.getUserList = (req, res) => {
-	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
-		return;
-	}
 	console.log(UserList.getUserList())
 	res.json(UserList.getUserList())
 
@@ -132,27 +123,16 @@ this.getDp = (req, res) => {
 	res.sendFile(Path.normalize(__dirname + "/../../favicon.png"))
 }
 this.getProfile = (req, res) => {
-	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
-		return;
-	}
-	//console.log(req.params.what)
 	if(req.params.what=="data"){
 		var data = {}
 		PublicProfile.findOne({email:req.session.user_email}, (err, profile)=>{
 			if(profile){
-				PhotPost.findOne({user_email:profile.email}, (err, result)=>{
-					if(result)
-						data.dp = "/photo?path=" + result.name
-					else	
-						data.dp = 'favicon.ico'
 					data.email = profile.email
 					data.name = profile.name
 					data.score = profile.score
 					data.badge = profile.badge
 					res.end(JSON.stringify(data))
 					return
-				})
 			}
 			else {
 				new PublicProfile({
@@ -174,10 +154,6 @@ this.getProfile = (req, res) => {
 	}	
 }
 this.getNewMessages = (req, res)=>{
-	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
-		return;
-	}
 	Unread.find({to:req.session.user_email}, (err, docs)=>{
 		if(docs){
 			res.json(docs)
@@ -251,11 +227,6 @@ this.postLogin = function(req, res) {
 	});
 }
 this.postPhoto = function(req, res) {
-	
-	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/')
-		return;
-	}
 	upload.fields([{name:'photo', maxCount:1}])(req, res, (err) => {
 		var doPhotoUpdate = (err, data, numAffected) => {
 			if (err) {
@@ -321,10 +292,6 @@ this.postPhoto = function(req, res) {
 	});
 }
 this.postLike = function(req, res) {
-	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
-		return;
-	}
 	PublicProfile.findOne({email:req.session.user_email}, function(err, result){
 		if(err){
 			console.log(err.toString());
@@ -365,29 +332,60 @@ this.postLike = function(req, res) {
 	})
 }
 this.postProfile = (req, res)=> {
-	if (!(req.session ? req.session.user_email : false)) {
-		res.redirect('/');
-		return;
-	}
 	PublicProfile.findOne({email:req.session.user_email}, (err, result)=>{
-		if(result){
-			result.name = req.body.name
-			result.save()
+		if(err){
+			console.log(err.toString())
+			res.redirect('/profile')
+			return
 		}
-		else{
-			new PublicProfile({
-				'name':req.body.name,
-				'email':req.session.user_email,
-				'badge':'A',
-				'score':0,
-				'liked_photos':[]
-			}).save()
-		}
-		res.redirect('/profile')
+		upload.fields([{name:'dp', maxCount:1}])(req, res, (err) => {
+			if(err){
+				console.log(err.toString())
+				res.redirect('/profile')
+				return
+			}
+			console.log(req.body)
+			if(result){
+				result.name = req.body.name
+				result.save()
+			}
+			else{
+				new PublicProfile({
+					'name':req.body.name,
+					'email':req.session.user_email,
+					'badge':'A',
+					'score':0,
+					'liked_photos':[]
+				}).save()
+			}
+			if(!req.files['dp']){
+				console.log("no file")
+				res.redirect('/profile')
+				return
+			}
+			var file = req.files['dp'][0]
+			sharp(file.path)
+				.resize(200,200)
+				.max()
+				.toFile(`app/uploads/dp/${req.session.user_email}.jpg`, (err)=>{
+					if(err){
+						console.log(err.toString())
+						res.redirect('/profile')
+						return
+					}
+					fs.unlink(file.path, (err)=>{
+						if(err){
+							console.log(err)
+							res.redirect('/profile')
+						}
+					})
+					res.redirect('/profile')
+					
+				})
+		})
 	})
 }
 this.getChatHistory = (req, res)=>{
-	//console.log(req.body)
 	Users.findOne({email:req.body.mate}, (err, result)=>{
 		if(result){
 			Chats.findOne({participants:{$all:[req.body.me, req.body.mate]}}, (err, result)=>{
