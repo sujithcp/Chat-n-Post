@@ -1,3 +1,4 @@
+
 #posts{
 	width: 60%;
 	min-height: 600px;
@@ -31,6 +32,18 @@
 	text-align: justify;
 	text-justify: inter-word;
 	padding: 10px;
+	font-weight: bold;
+}
+div.author{
+	color: #028a15;
+	font-weight: bold;
+	font-style: italic;
+	background: #e0e0e0;
+}
+.author > img{
+	height: 16px;
+	width: auto;
+	margin: 5px;
 }
 #main_container{
 	margin-top: 75px;
@@ -45,8 +58,9 @@ input[type="file"], button, #photo{
 	float: left;
 }
 .photo{
-	max-width: 100%;
-	height: auto;
+	width: 100%;
+	object-fit: cover;
+	max-height: 400px;
 }
 #chat_region{
 	padding-top: 20px;

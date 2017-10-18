@@ -55,7 +55,6 @@ var prepareIo = function() {
         })
         
         connection.on('chat_message', function(data){
-            console.log(data)
             connection.emit('feedback_from_server', data.message)
             Chats.findOne({participants:{$all:[data.to, user_email]}}, (err, result)=>{
                 if(result){
@@ -76,8 +75,6 @@ var prepareIo = function() {
             Unread.remove({from:data.from, to:user_email}, (err)=>{
                 if(err)
                     console.log(err.toString())
-                else
-                    console.log("Removed messages from unread db")
             })
         })
         connection.emit('identity_from_server', user_email)

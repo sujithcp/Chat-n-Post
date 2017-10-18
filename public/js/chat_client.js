@@ -174,11 +174,8 @@ function fetchUserList() {
 
     sendXhr('GET', '/get_user_list', null, (response)=>{
         if(response){
-            //console.log(response)
             createUserItems(response)
-            console.log('USER_LIST_UPDATE')
             sendXhr('GET', 'new_messages', null, (response)=>{
-                //console.log("New message : " + response)
                 var newMessages = JSON.parse(response)
                 for(var i in newMessages){
                     var user = document.getElementById(newMessages[i].from)
@@ -200,12 +197,10 @@ function fetchUserList() {
 }
 
 socket.on('chat_message_from_server', function(data) {
-    console.log(current_chat.partner + " " + chatArea.hidden)
     if(current_chat.partner==data.from && !chatArea.hidden)
         container.insertBefore(createMessageNode(data.message, 'chatmate'), container.firstChild)
     else{
         var user = document.getElementById(data.from)
-        //console.log(user)
         if(user){
             user.style.background = "#ff5310"
             updateCount(data.from, user.newMessageCount + 1)
@@ -227,7 +222,6 @@ socket.on('feedback_from_server', function(msg) {
 })
 socket.on('identity_from_server', function(email) {
     me = email;
-    //console.log(me)
     fetchUserList()
     document.getElementById('username').appendChild(document.createTextNode(me))
 })

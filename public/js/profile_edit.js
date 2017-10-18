@@ -7,7 +7,7 @@ sendXhr('GET', '/profile/data', null, (response) => {
 	console.log(profile)
 	console.log(profile.dp)
 	document.getElementById('name').value = profile.name
-	document.getElementById('dp').setAttribute('src',profile.dp)
+	document.getElementById('dp').setAttribute('src',`/photo?email=${profile.email}`)
 	document.getElementById('email').innerText = profile.email
 	document.getElementById('score').innerText = profile.score
 	document.getElementById('badge').innerText = profile.badge

@@ -2,12 +2,10 @@
 	<div class="profile" class="form-group">
 		<form action="/profile" method="post" enctype="multipart/form-data">
 			<div class="pic">
-					<div class="img">
-						<label for="dp_input">
-								<img src="/favicon.ico" id="dp"/>
-						</label>
-						<input type="file" accept="image/*" name="dp" id="dp_input" hidden>
-					</div>
+				<label for="dp_input">
+					<img src="/favicon.ico" id="dp"/>
+					<input type="file" accept="image/*" name="dp" id="dp_input">
+				</label>
 			</div>
 			<div>
 				<input type="text" value="name" id="name" class="form-control" name="name" maxlength="20">
